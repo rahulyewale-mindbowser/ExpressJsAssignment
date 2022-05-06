@@ -29,6 +29,18 @@
       "phone": 8476788993,
       "email": "amitk@gmail.com",
       "password": "Amitk@123"
+    },
+    {
+      "name": "kiran",
+      "phone": "5678889999",
+      "email": "kirank@gmail.com",
+      "password": "Kiran#123"
+    },
+    {
+      "name": "amitk",
+      "phone": 8476788994,
+      "email": "amit1@gmail.com",
+      "password": "Amitk@123"
     }
   ]
 }

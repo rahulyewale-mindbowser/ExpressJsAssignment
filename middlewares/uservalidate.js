@@ -1,25 +1,12 @@
 
-// var validator = require("email-validator"); 
-
-
-// const validateLogin =(email,password)=>{
-//    if(validator.validate(email){
-
-//    }
-
-//     let passRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
-//     if(password.match(passRegex)){
-
-//     }
-
-// }
-
+// regex object 
 const regex = {
     email:/^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/g,
     password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
     name:/^[a-z A-Z]{2,30}/,
     phone:/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
   };
+
   const emailValidator = (email) => {
     return regex.email.test(email);
   };
@@ -32,6 +19,8 @@ const regex = {
   const phoneValidator=(number)=>{
       return regex.phone.test(number)
   }   
+  
+  //  middleware Function for vallidating signup data
   function validSignupData(req, res, next) {
     if(!req.body || !req.body.email || !req.body.name || !req.body.password || !req.body.phone)
     {
@@ -59,21 +48,7 @@ const regex = {
     }
   }
   
-  const validLogin=(req,res,next)=>{
-    if(!req.body || !req.body.email  || !req.body.password || req.body.email.trim().length <= 0 || req.body.password.trim().length <= 0)
-    {
-      res.status(400).send("Please Provide both fields email, password");
-    }
-    if (!emailValidator(req.body.email)) {
-      res.status(400).send("Enter Valid Email");
-    }
-    else
-    {
-      next();
-      return;
-    }
-  }
 
   module.exports = {
-    validSignupData,validLogin
+    validSignupData
   };
