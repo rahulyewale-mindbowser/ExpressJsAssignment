@@ -29,7 +29,8 @@ exports.create = (req, res) => {
 
 exports.login =(req,res)=>{
 
-	// Get Email and password from body
+	try {
+    // Get Email and password from body
 	let email = req.body.email;
 	let password = req.body.password;
 	// Ensure the email &password exists and are not empty
@@ -52,39 +53,34 @@ exports.login =(req,res)=>{
 		res.send('Please enter Username and Password!');
 		res.end();
 	}
+  } catch (error) {
+    res.send(error)
+  }
 }
 
-// Retrieve all email from the database (with condition).
-// exports.findAll = (req, res) => {
-//     const email = req.query.email;
-//   User.getAll(email, (err, data) => {
-//     if (err)
-//       res.status(500).send({
-//         message:
-//           err.message || "Some error occurred while retrieving users."
-//       });
-//     else res.send(data);
-//   });
-  
-// };
 
 
-// Find a single user with a email
+// Find a single user with a id
 exports.findOne = (req, res) => {
-    User.findByEmail(req.query.email, (err, data) => {
-        if (err) {
-          if (err.kind === "not_found") {
-            res.status(404).send({
-              message: `Not found user with email ${req.query.email}.`
-            });
-          } else {
-            res.status(500).send({
-              message: "Error retrieving user with email " + req.query.email
-            });
-          }
-        } else res.send(data);
+    User.findById(req.query.id, (err, data) => {
+        try {
+          if (err) {
+            if (err.kind === "not_found") {
+              res.status(404).send({
+                message: `Not found user with id ${req.query.id}.`
+              });
+            } else {
+              res.status(500).send({
+                message: "Error retrieving user with id " + req.query.id
+              });
+            }
+          } else res.send(data);
+       
+        } catch (error) {
+          console.log(error);
+          
+        }
       });
-  
 };
 
 // Update a Users identified by the email in the request
@@ -95,46 +91,63 @@ exports.update = (req, res) => {
       message: "Content can not be empty!"
     });
   }
-  console.log(req.body);
-  User.updateByEmail(
-    req.query.email,
-    new User(req.body),
-    (err, data) => {
-      if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `Not found User with id ${req.query.email}.`
-          });
-        } else {
-          res.status(500).send({
-            message: "Error updating user with email " + req.query.email
-          });
-        }
-      } else res.send(data);
-    }
-  );
-  
-};
-// Delete a user with the specified email in the request
-exports.delete = (req, res) => {
-    User.remove(req.query.email, (err, data) => {
+  if(req.body.email){
+    res.status(404).send({
+      message:"Email cannot updated"
+    });
+    return;
+  }
+  // console.log(req.body);
+  try {
+    User.updateById(
+      req.query.id,
+      new User(req.body),
+      (err, data) => {
         if (err) {
           if (err.kind === "not_found") {
             res.status(404).send({
-              message: `Not found user with id ${req.query.email}.`
+              message: `Not found User with id ${req.query.id}.`
             });
           } else {
             res.status(500).send({
-              message: "Could not delete user with email " + req.query.email
+              message: "Error updating user with id " + req.query.id
+            });
+          }
+        } else res.send(data);
+      }
+    );
+  } catch (error) {
+    res.send(error)
+  }
+  
+};
+
+// Delete a user with the specified Id in the request
+exports.delete = (req, res) => {
+    try {
+      User.remove(req.query.id, (err, data) => {
+        if (err) {
+          if (err.kind === "not_found") {
+            res.status(404).send({
+              message: `Not found user with Id ${req.query.id}.`
+            });
+          } else {
+            res.status(500).send({
+              message: "Could not delete user with Id " + req.query.id
             });
           }
         } else res.send({ message: `user was deleted successfully!` });
       });
+    } catch (error) {
+      res.send(error);
+    }
   
 };
+
 // Delete all users from the database.
 exports.deleteAll = (req, res) => {
-    User.removeAll((err, data) => {
+    try {
+      User.removeAll((err, data) => {
         if (err)
           res.status(500).send({
             message:
@@ -142,5 +155,8 @@ exports.deleteAll = (req, res) => {
           });
         else res.send({ message: `All Users were deleted successfully!` });
       });
+    } catch (error) {
+      res.send(error);
+    }
   
 };

@@ -1,3 +1,4 @@
+const res = require("express/lib/response");
 const sql = require("./db.js");
 // constructor
 const User = function(user) {
@@ -6,8 +7,9 @@ const User = function(user) {
   this.phone = user.phone;
   this.password =user.password;
 };
-
+// To create new user
 User.create = (newUser, result) => {
+ try {
   sql.query("INSERT INTO users SET ?", newUser, (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -17,26 +19,15 @@ User.create = (newUser, result) => {
     console.log("created user: ", { ...newUser});
     result(null, { ...newUser });
   });
+ } catch (error) {
+   res.send(error);
+ }
 };
 
-
-
-// Retrieve all email from the database (with condition).
-// exports.findAll = (req, res) => {
-//     const email = req.query.email;
-//   User.getAll(email, (err, data) => {
-//     if (err)
-//       res.status(500).send({
-//         message:
-//           err.message || "Some error occurred while retrieving users."
-//       });
-//     else res.send(data);
-//   });
-    
-// }
-
-User.findByEmail = (email, result) => {
-  sql.query(`SELECT * FROM users WHERE email = ${email}`, (err, res) => {
+// To find User BY ID
+User.findById = (id, result) => {
+ try {
+  sql.query(`SELECT * FROM users WHERE id = ${id}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -47,34 +38,84 @@ User.findByEmail = (email, result) => {
       result(null, res[0]);
       return;
     }
-    // not found user with the id
+    // not found user with the ID
     result({ kind: "not_found" }, null);
   });
+ } catch (error) {
+   res.send(error);
+ }
 };
 // To get all users Data
-// User.getAll = (email, result) => {
-//   let query = "SELECT * FROM users";
-//   if (email) {
-//     query += ` WHERE email LIKE '%${email}%'`;
-//   }
-//   sql.query(query, (err, res) => {
-//     if (err) {
-//       console.log("error: ", err);
-//       result(null, err);
-//       return;
-//     }
-//     console.log("users: ", res);
-//     result(null, res);
-//   });
-// };
+
+User.getAll = (email, result) => {
+  try {
+    let query = "SELECT * FROM users";
+  if (email) {
+    query += ` WHERE email LIKE '%${email}%'`;
+  }
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+    console.log("users: ", res);
+    result(null, res);
+  });
+  } catch (error) {
+    res.send(error);
+  }
+};
 
 
-// Update a user by email
-User.updateByEmail = (email, user, result) => {
-  sql.query(
-    "UPDATE users SET name = ?, phone = ?, email = ? WHERE email = ?",
-    [user.name, user.phone, user.email, email],
-    (err, res) => {
+// Update a user by id
+User.updateById = (id, user, result) => {
+  try {
+    sql.query(
+      "UPDATE users SET name = ?, phone = ?, password = ? WHERE id = ?",
+      [user.name, user.phone, user.password, id],
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          result(null, err);
+          return;
+        }
+        if (res.affectedRows == 0) {
+          // not found user with the id
+          result({ kind: "not_found" }, null);
+          return;
+        }
+        try {
+          sql.query(`SELECT * FROM users WHERE id = ${id}`, (err, res) => {
+            if (err) {
+              console.log("error: ", err);
+              result(err, null);
+              return;
+            }
+            if (res.length) {
+              console.log("Updated user: ", res[0]);
+              result(null, res[0]);
+              return;
+              
+            }
+            // not found user with the ID
+            result({ kind: "not_found" }, null);
+          });
+         } catch (error) {
+           res.send(error);
+         }
+        
+      }
+    );
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+// Delete the user specified with id
+User.remove = (id, result) => {
+  try {
+    sql.query("DELETE FROM users WHERE id = ?", id, (err, res) => {
       if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -85,40 +126,28 @@ User.updateByEmail = (email, user, result) => {
         result({ kind: "not_found" }, null);
         return;
       }
-      console.log("updated user: ", { email: email, ...user });
-      result(null, { email: email, ...user });
-    }
-  );
-};
-
-// Delete the user specified with Email
-User.remove = (email, result) => {
-  sql.query("DELETE FROM users WHERE email = ?", email, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(null, err);
-      return;
-    }
-    if (res.affectedRows == 0) {
-      // not found email with the id
-      result({ kind: "not_found" }, null);
-      return;
-    }
-    console.log("deleted user with email: ", email);
-    result(null, res);
-  });
+      console.log("deleted user with id: ", id);
+      result(null, res);
+    });
+  } catch (error) {
+    res.send(error);
+  }
 };
 
 // Delete all user from  users table
 User.removeAll = result => {
-  sql.query("DELETE FROM users", (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(null, err);
-      return;
-    }
-    console.log(`deleted ${res.affectedRows} users`);
-    result(null, res);
-  });
+  try {
+    sql.query("DELETE FROM users", (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
+      console.log(`deleted ${res.affectedRows} users`);
+      result(null, res);
+    });
+  } catch (error) {
+    res.send(error);
+  }
 };
 module.exports = User;

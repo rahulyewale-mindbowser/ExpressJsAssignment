@@ -20,7 +20,7 @@ const regex = {
       return regex.phone.test(number)
   }   
   
-  //  middleware Function for vallidating signup data
+  //  middleware Function for validating signup data
   function validSignupData(req, res, next) {
     if(!req.body || !req.body.email || !req.body.name || !req.body.password || !req.body.phone)
     {
