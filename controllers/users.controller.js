@@ -1,7 +1,8 @@
 const sql = require("../models/db");
 const User = require("../models/users.model");
+const bcrypt =require("bcrypt")
 // Create and Save a new user
-exports.create = (req, res) => {
+exports.create = async(req, res) => {
     // Validate request
   if (!req.body) {
     res.status(400).send({
@@ -9,11 +10,12 @@ exports.create = (req, res) => {
     });
   }
   // Create a User
+  var hashedPassword=await bcrypt.hash(req.body.password,10);
   const user = new User({
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
-    password: req.body.password
+    password: hashedPassword
   });
   // Save User in the database
  User.create(user, (err, data) => {
@@ -27,7 +29,7 @@ exports.create = (req, res) => {
   
 };
 
-exports.login =(req,res)=>{
+exports.login =async(req,res)=>{
 
 	try {
     // Get Email and password from body
@@ -36,18 +38,24 @@ exports.login =(req,res)=>{
 	// Ensure the email &password exists and are not empty
 	if (email && password) {
 		// Execute SQL query that'll select the user from the database based on the specified email and password
-		sql.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], function(error, results) {
+		sql.query('SELECT * FROM users WHERE email = ?', [email], async function(error, results) {
 			// If there is an issue with the query, output the error
 			if (error) throw error;
 			// If the user exists
 			if (results.length > 0) {
-				
-                console.log("successfull");
-                res.send("login successfull")
-			} else {
-				res.send('Incorrect email and/or Password!');
-			}			
-			res.end();
+        if(await bcrypt.compare(password,results[0].password)){
+          // console.log("login successfull");
+          res.status(200).send({message:"Login successfull"})
+        }
+        else {
+          res.status(401).json({ message: "Incorrect Password" });
+        }		
+        res.end();	
+			} else{
+        res.status(401).json({ message: "Email Not Found!" });
+        res.end();
+      }
+       
 		});
 	} else {
 		res.send('Please enter Username and Password!');

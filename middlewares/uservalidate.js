@@ -22,7 +22,8 @@ const regex = {
   
   //  middleware Function for validating signup data
   function validSignupData(req, res, next) {
-    if(!req.body || !req.body.email || !req.body.name || !req.body.password || !req.body.phone)
+    try {
+      if(!req.body || !req.body.email || !req.body.name || !req.body.password || !req.body.phone)
     {
       res.status(400).send("Provide all Fields email, name, password, phone number");
     }
@@ -46,9 +47,39 @@ const regex = {
       next();
       return;
     }
+    } catch (error) {
+      res.send(error)
+      return;
+    }
   }
-  
+  function validUpdateData(req,res,next){
+    try {
+      if(!req.body){
+        res.status(400).send("Please provide Fields which has to be update");
+      }
+      if (!passwordValidator(req.body.password)) {
+        res
+          .status(400)
+          .send(
+            "Enter Valid Password combination of alphabets, at least one special character, and at least one digit with minimum of 8 and maximum of 16 characters."
+          );
+      } else if (!nameValidator(req.body.name)) {
+        res.status(400).send("Enter Valid Name having min 2 and max 30 alphabets");
+      } 
+      else if(!phoneValidator(req.body.phone))
+      {
+        res.status(400).send("Enter 10 digit phone number");
+      }
+      else {
+        next();
+        return;
+      }
+    } catch (error) {
+      res.send(error);
+      return;
+    }
+  }
 
   module.exports = {
-    validSignupData
+    validSignupData,validUpdateData
   };

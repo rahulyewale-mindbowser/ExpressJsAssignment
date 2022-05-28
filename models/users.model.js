@@ -43,6 +43,7 @@ User.findById = (id, result) => {
   });
  } catch (error) {
    res.send(error);
+   return;
  }
 };
 // To get all users Data
@@ -64,6 +65,7 @@ User.getAll = (email, result) => {
   });
   } catch (error) {
     res.send(error);
+    return;
   }
 };
 
@@ -103,12 +105,14 @@ User.updateById = (id, user, result) => {
           });
          } catch (error) {
            res.send(error);
+           return;
          }
         
       }
     );
   } catch (error) {
     res.send(error);
+    return;
   }
 };
 
@@ -131,6 +135,7 @@ User.remove = (id, result) => {
     });
   } catch (error) {
     res.send(error);
+    return;
   }
 };
 
@@ -148,6 +153,7 @@ User.removeAll = result => {
     });
   } catch (error) {
     res.send(error);
+    return;
   }
 };
 module.exports = User;
