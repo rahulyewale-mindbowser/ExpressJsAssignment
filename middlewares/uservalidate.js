@@ -27,21 +27,12 @@ const regex = {
     {
       res.status(400).send("Provide all Fields email, name, password, phone number");
     }
-    if (!emailValidator(req.body.email)) {
-      res.status(400).send("Enter Valid Email");
-      console.log(req.body.email);
-    } else if (!passwordValidator(req.body.password)) {
+     if (!passwordValidator(req.body.password)) {
       res
         .status(400)
         .send(
           "Enter Valid Password combination of alphabets, at least one special character, and at least one digit with minimum of 8 and maximum of 16 characters."
         );
-    } else if (!nameValidator(req.body.name)) {
-      res.status(400).send("Enter Valid Name having min 2 and max 30 alphabets");
-    } 
-    else if(!phoneValidator(req.body.phone))
-    {
-      res.status(400).send("Enter 10 digit phone number");
     }
     else {
       next();
