@@ -1,7 +1,6 @@
 
 const express = require("express");
 const cors = require("cors");
-const cookieSession = require("cookie-session");
 const app = express();
 var corsOptions = {
   origin: "http://localhost:3000"
@@ -34,7 +33,7 @@ app.get("/", (req, res) => {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 require("./routes/Users")(app);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);

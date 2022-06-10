@@ -2,6 +2,10 @@
 const bcrypt = require("bcrypt")
 const db = require("../models/index");
 const Users = db.users;
+const jwt= require('jsonwebtoken');
+
+require('dotenv').config();
+
 // Create and Save a new User
 exports.create = async (req, res) => {
   // Validate request
@@ -36,6 +40,7 @@ exports.create = async (req, res) => {
 // signin user
 
 exports.signin = (req, res) => {
+ try {
   Users.findOne({
     email: req.body.email,
   })
@@ -54,10 +59,16 @@ exports.signin = (req, res) => {
       if (!passwordIsValid) {
         return res.status(401).send({ message: "Invalid Password!" });
       }
+      var token = jwt.sign({ id: user.id },process.env.SECRET_KEY);
+      // req.session.token = token;
+      console.log(user.id);
       res.status(200).send({
-        message: "login successfull"
+        message: "login successfull",id:user._id, token
       });
     });
+ } catch (error) {
+   console.log(error);
+ }
 };
 
 
@@ -91,6 +102,7 @@ exports.findOne = (req, res) => {
         .send({ message: "Error retrieving user with id=" + id });
     });
 };
+
 // Update a User by the id in the request
 exports.update = async (req, res) => {
   if (!req.body) {
